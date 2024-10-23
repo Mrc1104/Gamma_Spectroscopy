@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
 
 
 using namespace std;
@@ -98,7 +99,7 @@ TString subtag_to_str(int n)
  *	Assumes we will be reading in int data values
  *	Assumes the TFile is already open
  */
-void c_CountsVsChan_histo(TFile* file = NULL, TTree* T = NULL, TString bname = "BNAME", TString histoName = "HISTO") 
+TH1F* c_CountsVsChan_histo(TFile* file = NULL, TTree* T = NULL, TString bname = "BNAME", TString histoName = "HISTO") 
 {
 	if(T == NULL || file == NULL ){
 		cout << "TTree and TFile cannot be NULL when calling c_CountsVsChan_histo!\n Exiting...";
@@ -130,7 +131,7 @@ void c_CountsVsChan_histo(TFile* file = NULL, TTree* T = NULL, TString bname = "
 	h->GetYaxis()->SetTitle("Counts");
 	std::cout << "Creating Counts vs Channel Histogram: " << histoName << std::endl;
 	// h->Write(histoName, TObject::kOverwrite);
-	return;
+	return h;
 }
 
 
@@ -138,6 +139,7 @@ void make_rootfiles(string path, string stag, TString sfout)
 {
 	TFile* fsave = new TFile(sfout, "RECREATE");
 	TTree* tdata = new TTree("Data", "Data Tree");
+	vector<TH1F*> vh;
 
 
 	// make file path name for each subtag in main tag dir
@@ -155,7 +157,7 @@ void make_rootfiles(string path, string stag, TString sfout)
 		}
 		TString tsfile(sfile);
 		xy_ints_to_tree(tsfile, tdata, subtag_to_str(tag) );
-		c_CountsVsChan_histo(fsave, tdata, subtag_to_str(tag), subtag_to_str(tag) );
+		vh.push_back( c_CountsVsChan_histo(fsave, tdata, subtag_to_str(tag), subtag_to_str(tag) ) );
 	}
 	fsave->Write();
 }

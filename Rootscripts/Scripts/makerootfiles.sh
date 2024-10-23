@@ -24,7 +24,7 @@ if [[ "$1" == '--' ]]; then shift; fi
 
 
 for file in ${dfile}/tag*0.xy; do
-	path=\"${file}\"
+	path=\"${file%/tag*}\"
 	TAG=${file#*tag}
 	TAG=${TAG%.*}
 	savefile=\"${rfile}/"tag"${TAG%?}"X.root"\"
