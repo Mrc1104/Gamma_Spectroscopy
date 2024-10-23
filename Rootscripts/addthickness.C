@@ -17,12 +17,14 @@ void addthickness()
 
 	GQ c1(1.25, 0.01);
 	GQ c2(1.29, 0.01);
+	GQ c3(1.29, 0.01);
 
 	cout << "Copper:" << endl;
 	cout << "-------------------------------------" << endl;
 	cout << "0 Plate: " << a0 << endl;
 	cout << "1 Plate: " <<  a0 + c1 << endl;
 	cout << "2 Plate: " <<  a0 + c1 + c2 << endl;
+	cout << "3 Plate: " <<  a0 + c1 + c2 + c3 << endl;
 
 
 }
