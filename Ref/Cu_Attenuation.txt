@@ -1,0 +1,5 @@
+Cu Attenautation Coeff (cm^2/g)
+https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z29.html
+
+Cu Density (g/cm^3)
+https://physics.nist.gov/PhysRefData/XrayMassCoef/tab1.html

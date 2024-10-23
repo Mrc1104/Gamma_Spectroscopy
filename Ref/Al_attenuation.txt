@@ -1,0 +1,5 @@
+Al Attenautation Coeff (cm^2/g)
+https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z13.html
+
+Al Density (g/cm^3)
+https://physics.nist.gov/PhysRefData/XrayMassCoef/tab1.html
