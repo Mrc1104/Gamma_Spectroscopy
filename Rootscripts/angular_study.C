@@ -74,7 +74,12 @@ void angular_study(string sinfile, string sdeg, string scale, string soutfile)
 
 	// Make histograms
 	vector<TGraphErrors*> vg(4);
-	for(auto it=vg.begin(); it!=vg.end(); *it=new TGraphErrors(), it++);
+	for(auto it=vg.begin(); it!=vg.end();  it++)
+	{
+		*it = new TGraphErrors();
+		(*it)->GetXaxis()->SetTitle("Angle [deg]");
+		(*it)->GetYaxis()->SetTitle("Counts");
+	}
 
 	// Open file(s)
 	vector<TFile*> vfiles;
@@ -114,9 +119,9 @@ void angular_study(string sinfile, string sdeg, string scale, string soutfile)
 	TCanvas* c = new TCanvas();
 	c->Divide(2,2);
 	c->cd(1); vg[0]->SetTitle("gam1 & g11 (511 keV)"  ); vg[0]->SetMarkerStyle(20); vg[0]->Draw("AP");
-	c->cd(2); vg[1]->SetTitle("gam1 & g11 (1.275 keV)"); vg[1]->SetMarkerStyle(20); vg[1]->Draw("AP");
+	c->cd(2); vg[1]->SetTitle("gam1 & g11 (1.275 MeV)"); vg[1]->SetMarkerStyle(20); vg[1]->Draw("AP");
 	c->cd(3); vg[2]->SetTitle("gam1 & g12 (511 keV)"  ); vg[2]->SetMarkerStyle(20); vg[2]->Draw("AP");
-	c->cd(4); vg[3]->SetTitle("gam1 & g12 (1.275 keV)"); vg[3]->SetMarkerStyle(20); vg[3]->Draw("AP");
+	c->cd(4); vg[3]->SetTitle("gam1 & g12 (1.275 MeV)"); vg[3]->SetMarkerStyle(20); vg[3]->Draw("AP");
 
 
 }
