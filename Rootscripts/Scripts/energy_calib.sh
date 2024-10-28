@@ -28,9 +28,11 @@ done
 
 NaFull=\"${fileNa}\"
 CsFull=\"${fileCs}\"
+bkgFull=\"../Rootfiles/background/${prefix}027X${suffix}\"
 savefile=\"${rfilepath}/energy_calib${suffix}\"
 echo ${NaFull}
 echo ${CsFull}
+echo ${bkgFull}
 echo ${savefile}
 
-root "${rscript}/energy_calibration.C(${NaFull},\"${NADURATION}\", ${CsFull}, \"${CSDURATION}\", ${savefile})"
+root "${rscript}/energy_calibration.C(${NaFull},\"${NADURATION}\", ${CsFull}, \"${CSDURATION}\", ${bkgFull}, \"5\", ${savefile})"
