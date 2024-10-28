@@ -6,8 +6,11 @@ declare rfile
 declare rscript=.
 declare dfile
 
-angles=(0,5,10,15,20,30,-5,-10,-15,0,-20)
-duration=(10,10,10,10,10,10,10,10,10,5,5);
+#angles=(0,5,10,15,20,30,-5,-10,-15,0,-20)
+#duration=(10,10,10,10,10,10,10,10,10,5,5);
+# Day4 (second round of data)
+angles=(0,5,10,15,20,25,-5,-10,-15,-20,-25,0)
+duration=(5,5,5,5,5,5,5,5,5,5,5,5);
 
 while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
 		-d | --data )

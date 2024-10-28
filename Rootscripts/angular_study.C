@@ -123,5 +123,14 @@ void angular_study(string sinfile, string sdeg, string scale, string soutfile)
 	c->cd(3); vg[2]->SetTitle("gam1 & g12 (511 keV)"  ); vg[2]->SetMarkerStyle(20); vg[2]->Draw("AP");
 	c->cd(4); vg[3]->SetTitle("gam1 & g12 (1.275 MeV)"); vg[3]->SetMarkerStyle(20); vg[3]->Draw("AP");
 
+	// Save
+	TFile* fsave = new TFile(soutfile.c_str(), "RECREATE");
+	fsave->cd();
+	vg[0]->Write("gam1_g11_511" );
+	vg[1]->Write("gam1_g11_1275");
+	vg[2]->Write("gam1_g12_511" );
+	vg[3]->Write("gam1_g12_1275");
+	c->Write("Coincidence");
+
 
 }
