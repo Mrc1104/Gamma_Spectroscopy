@@ -69,6 +69,7 @@ void fit_peaks(TFile* file, TTree* t, TCanvas* c, const int pad, TH1F* h0, const
 
 
 	double adjusted_counts = peak_counts;
+	// if(adjusted_counts < 0) adjusted_counts = 0;
 	double adjusted_counts_error = TMath::Sqrt( peak_error);
 
 	if( name.find("GAM1_") != string::npos)
@@ -170,12 +171,6 @@ void attenuation(string sdatafile, string spdata, string sbkg, string soutfile, 
 		vthick[kused] = pdata_th;
 		vtherr[kused] = pdata_therr;
 		kused++;
-		/*
-		vthickness.push_back( {pdata_th, pdata_therr} );
-		cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-		cout << vthickness.back().first << " " << vthickness.back().second << endl;
-		cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << endl;
-		*/
 	}
 
 
@@ -193,30 +188,38 @@ void attenuation(string sdatafile, string spdata, string sbkg, string soutfile, 
 		vgam2_scaled_bkg.push_back( background_sub(vgam2_scaled[i], vbkg[1], 10.0, 5.0) );
 	}
 
-	// Fit the Peak 511 peaks
+	// Fit the 511 & 1275 peaks
 	int offset = 0;
 	if(vgam1_scaled_bkg.size() % 2) offset = 1;
-	TFile* fsave = new TFile(soutfile.c_str(), "RECREATE");
-	TTree* tgam1 = new TTree("Gam1", "Gam1 Data"); TCanvas* cgam1 = new TCanvas("cgam1"); cgam1->Divide(vgam1_scaled_bkg.size()/2, vgam1_scaled_bkg.size()/2+offset);
-	TTree* tgam2 = new TTree("Gam2", "Gam2 Data"); TCanvas* cgam2 = new TCanvas("cgam2"); cgam2->Divide(vgam2_scaled_bkg.size()/2, vgam2_scaled_bkg.size()/2+offset);
-	pair<int,int> gam1_range = { 120, 170 };
-	pair<int,int> gam2_range = { 100, 180 };
+	TFile* fsave   = new TFile(soutfile.c_str(), "RECREATE");
+	TTree* tgam1   = new TTree("Gam1", "Gam1 Data"  ); TCanvas* cgam1  = new TCanvas("cgam1"); cgam1->Divide(vgam1_scaled_bkg.size()/2, vgam1_scaled_bkg.size()/2+offset);
+	TTree* tgam2   = new TTree("Gam2", "Gam2 Data"  ); TCanvas* cgam2  = new TCanvas("cgam2"); cgam2->Divide(vgam2_scaled_bkg.size()/2, vgam2_scaled_bkg.size()/2+offset);
+	TTree* tgam1_2 = new TTree("Gam1_2", "Gam1 Data"); TCanvas* cgam1_2= new TCanvas("cgam1_2"); cgam1_2->Divide(vgam1_scaled_bkg.size()/2, vgam1_scaled_bkg.size()/2+offset);
+	pair<int,int> gam1_range  = { 120, 170 };
+	pair<int,int> gam1_range_2= { 300, 390 };
+	pair<int,int> gam2_range  = { 120, 180 };
 	vector<string> vgam1_names;
 	vector<string> vgam2_names;
+	vector<string> vgam1_2_names;
 	for(int i = 0; i < vgam1_scaled_bkg.size(); i++) {
 		string tmp1 = "GAM1_" + to_string(i);
 		string tmp2 = "GAM2_" + to_string(i);
+		string tmp3 = tmp1    + "_1275";
 		vgam1_names.push_back(tmp1);
 		vgam2_names.push_back(tmp2);
+		vgam1_2_names.push_back(tmp3);
 		fit_peaks(fsave, tgam1, cgam1, i+1, vgam1_scaled_bkg[i], gam1_range.first, gam1_range.second, 0,0, tmp1);
 		fit_peaks(fsave, tgam2, cgam2, i+1, vgam2_scaled_bkg[i], gam2_range.first, gam2_range.second, 0,0, tmp2);
+		fit_peaks(fsave, tgam1_2, cgam1_2, i+1, vgam1_scaled_bkg[i], gam1_range_2.first, gam1_range_2.second, 0,0, tmp3);
+	// fit_peaks(fsave, tdata, cNa_Gam1, 2, hNa_Gam1_BKG, 300, 390, 0, 1600, "NA_GAM1_PEAK2");
 	}
 	tgam1->Write();
 	tgam2->Write();
+	tgam1_2->Write();
 
 	// Obtain Counts (ONLY FOR GAM1)
-	double cts[255];
-	double err[255];
+	double cts_511[255];
+	double err_511[255];
 	int npoints = 0;
 	for( auto it = vgam1_names.begin(); it != vgam1_names.end(); it++ ) {
 		const char *bname = (*it).c_str();
@@ -224,19 +227,55 @@ void attenuation(string sdatafile, string spdata, string sbkg, string soutfile, 
 		double dvar[6];
 		b->SetAddress(&dvar);
 		b->GetEntry();
-		cts[npoints] = dvar[4];
-		err[npoints] = dvar[5];
-		// cout << "\n\n" << vthick[npoints] << " " << vtherr[npoints] << endl;
-		// cout << cts[npoints] << " " << err[npoints] << endl;
+		cts_511[npoints] = dvar[4];
+		err_511[npoints] = dvar[5];
+		// cout << "\n\n" << vthick[npoints] << " " << vtherr_511[npoints] << endl;
+		// cout << cts_511[npoints] << " " << err_511[npoints] << endl;
 		npoints++;
+	}
+	
+	// Get Counts of 1275 peak (ONLY FOR GAM1)
+	double cts_1275[255];
+	double err_1275[255];
+	int npoints_2 = 0;
+	for( auto it = vgam1_2_names.begin(); it != vgam1_2_names.end(); it++ ) {
+		const char *bname = (*it).c_str();
+		TBranch* b = tgam1_2->GetBranch(bname);
+		double dvar[6];
+		b->SetAddress(&dvar);
+		b->GetEntry();
+		cts_1275[npoints_2] = dvar[4];
+		err_1275[npoints_2] = dvar[5];
+		// cout << "\n\n" << vthick[npoints_2] << " " << vtherr_1275[npoints_2] << endl;
+		// cout << cts_1275[npoints_2] << " " << err_1275[npoints_2] << endl;
+		npoints_2++;
 	}
 
 	// Plot the sucker
-	TCanvas* c = new TCanvas("Attenuation"); c->cd();
-	TGraphErrors* g = new TGraphErrors(npoints, vthick, cts, vtherr, err);
+	string element;
+	if( elem == 0 ) element = "Al";
+	else            element = "Cu";
+
+	TCanvas* c = new TCanvas("Attenuation"); c->Divide(1,2); c->cd(1);
+	// 511
+	TGraphErrors* g = new TGraphErrors(npoints, vthick, cts_511, vtherr, err_511);
+	g->SetTitle(Form("%s Attenuation (511 keV); Thickness [cm]; Counts", element.c_str()));
 	g->SetMarkerStyle(8);
 	g->Draw("AP");
-	g->Fit("expo");
+	TFitResultPtr fexpo1 = g->Fit("expo","S");
+
+	// 1275
+	c->cd(2);
+	TGraphErrors* g_2 = new TGraphErrors(npoints_2, vthick, cts_1275, vtherr, err_1275);
+	g_2->SetTitle(Form("%s Attenuation (1.275 MeV); Thickness [cm]; Counts", element.c_str()));
+	g_2->SetMarkerStyle(8);
+	g_2->Draw("AP");
+	TFitResultPtr fexpo2 = g_2->Fit("expo","S");
+
+	g->Write(Form("%s_Attenuation_511",element.c_str()));
+	fexpo1->Write(Form("%s_Attenuation_511_Fit",element.c_str()));
+	g_2->Write(Form("%s_Attenuation_1275",element.c_str()));
+	fexpo2->Write(Form("%s_Attenuation_1275_Fit",element.c_str()));
 
 	return;
 }
